@@ -1,5 +1,6 @@
 package com.example.reddit.config;
 
+import com.example.reddit.security.JwtAuthenticationFilter;
 import com.example.reddit.service.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -19,6 +20,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
@@ -26,13 +28,15 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 public class SecurityConfig {
     UserDetailsService userDetailService;
     UserDetailsServiceImpl userDetailsService;
+    JwtAuthenticationFilter jwtAuthenticationFilter;
 
     private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public SecurityConfig(@Lazy PasswordEncoder passwordEncoder, @Lazy UserDetailsService userDetailsService) {
+    public SecurityConfig(@Lazy PasswordEncoder passwordEncoder, @Lazy JwtAuthenticationFilter jwtAuthenticationFilter,@Lazy UserDetailsService userDetailsService) {
         this.passwordEncoder = passwordEncoder;
         this.userDetailService = userDetailsService;
+        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
     }
 
     @Bean
@@ -48,7 +52,9 @@ public class SecurityConfig {
     public void configureGlobal(AuthenticationManagerBuilder authenticationManagerBuilder) throws Exception {
         authenticationManagerBuilder
                 .userDetailsService(userDetailService)
-                .passwordEncoder(passwordEncoder).getUserDetailsService().loadUserByUsername("test1");
+                .passwordEncoder(passwordEncoder)
+                //.getUserDetailsService().loadUserByUsername("test1")
+        ;
     }
 
     @Bean
@@ -57,6 +63,7 @@ public class SecurityConfig {
         http.authorizeHttpRequests((auth) ->
                auth.requestMatchers(new AntPathRequestMatcher("/api/auth/**")).permitAll().anyRequest().authenticated()
         );
+        http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 
