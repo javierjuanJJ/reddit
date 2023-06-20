@@ -5,8 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.lang.Nullable;
+
+import javax.validation.constraints.NotBlank;
 import java.time.Instant;
 
 import static jakarta.persistence.FetchType.LAZY;
