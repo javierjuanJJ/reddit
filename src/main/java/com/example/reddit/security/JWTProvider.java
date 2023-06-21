@@ -2,6 +2,7 @@ package com.example.reddit.security;
 
 import com.example.reddit.exceptions.SpringRedditException;
 import io.jsonwebtoken.Claims;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.User;
 import io.jsonwebtoken.Jwts;
 import jakarta.annotation.PostConstruct;
@@ -12,12 +13,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.*;
 import java.security.cert.CertificateException;
+import java.time.Instant;
+import java.util.Date;
 
 import static io.jsonwebtoken.Jwts.parser;
+import static java.util.Date.from;
 
 @Service
 public class JWTProvider {
-
+    @Value("${jwt.expiration.time}")
+    private Long jwtExpirationInMillis;
     private KeyStore keyStore;
 
     @PostConstruct
@@ -60,7 +65,18 @@ public class JWTProvider {
             throw new SpringRedditException("Exception occured while retrieving public key from keystore");
         }
     }
+    public Long getJwtExpirationInMillis() {
+        return jwtExpirationInMillis;
+    }
 
+    public String generateTokenWithUserName(String username) {
+        return Jwts.builder()
+                .setSubject(username)
+                .setIssuedAt(from(Instant.now()))
+                .signWith(getPrivateKey())
+                .setExpiration(Date.from(Instant.now().plusMillis(jwtExpirationInMillis)))
+                .compact();
+    }
     public String getUsernameFromJWT(String token) {
         Claims claims = parser()
                 .setSigningKey(getPublickey())
