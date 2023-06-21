@@ -3,6 +3,7 @@ package com.example.reddit.controller;
 import com.example.reddit.dto.CommentsDto;
 import com.example.reddit.service.CommentService;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,14 +26,15 @@ public class CommentsController {
         return new ResponseEntity<>(CREATED);
     }
 
-    @GetMapping("/post")
-    public ResponseEntity<List<CommentsDto>> getAllCommentsForPost(@RequestParam("postId") Long postId) {
-        return status(OK)
-                .body(commentService.getCommentByPost(postId));
+    @GetMapping("/posts/{id}")
+    public ResponseEntity<List<CommentsDto>> getAllCommentsForPost(@PathVariable("id") Long id) {
+        System.out.println("dentro" + id);
+        return status(HttpStatus.OK)
+                .body(commentService.getCommentByPost(id));
     }
 
-    @GetMapping("/user")
-    public ResponseEntity<List<CommentsDto>> getAllCommentsByUser(@RequestParam("userName") String userName) {
-        return status(OK).body(commentService.getCommentsByUser(userName));
+    @GetMapping("/user/{userName}")
+    public ResponseEntity<List<CommentsDto>> getAllCommentsByUser(@PathVariable("userName") String userName) {
+        return status(HttpStatus.OK).body(commentService.getCommentsByUser(userName));
     }
 }

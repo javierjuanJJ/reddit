@@ -53,10 +53,16 @@ public class CommentService {
     public List<CommentsDto> getCommentByPost(Long postId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new PostNotFoundException(postId.toString()));
-        return commentRepository.findByPost(post)
+        System.out.println(post.getUser().getUsername() + " post");
+        List<Comment> byPost = commentRepository.findByPost(post);
+        System.out.println(byPost.get(0) + " post");
+
+        List<CommentsDto> collect = byPost
                 .stream()
                 .map(commentMapper::mapToDto)
                 .collect(toList());
+        System.out.println(collect.get(0) + " post");
+        return collect;
     }
 
     public List<CommentsDto> getCommentsByUser(String userName) {
