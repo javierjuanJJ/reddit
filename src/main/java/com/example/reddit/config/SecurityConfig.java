@@ -22,6 +22,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 
 @Configuration
 @EnableWebSecurity
@@ -61,7 +62,22 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable);
         http.authorizeHttpRequests((auth) ->
-               auth.requestMatchers(new AntPathRequestMatcher("/api/**")).permitAll().anyRequest().authenticated()
+               auth.requestMatchers(
+                       new AntPathRequestMatcher("/api/**")
+
+                       ).permitAll().requestMatchers(
+
+                               new AntPathRequestMatcher("/configuration/ui"),
+                               new AntPathRequestMatcher("/swagger-resources/**"),
+                               new AntPathRequestMatcher("/configuration/security"),
+                               new AntPathRequestMatcher("/swagger-ui.html"),
+                               new AntPathRequestMatcher("/webjars/**"),
+                               new AntPathRequestMatcher("/swagger-ui/**"),
+                               new AntPathRequestMatcher("/javainuse-openapi/"),
+                               new AntPathRequestMatcher("/v3/api-docs/**")
+
+                       ).permitAll()
+                       .anyRequest().authenticated()
         );
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
